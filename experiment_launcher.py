@@ -65,11 +65,12 @@ def node_partition(nb_cluster_machine, nb_builder, nb_validator, nb_regular):
     return partition
 
 def main(output_dir):
+    start_time = time.time()
     #========== Parameters ==========
     #Grid5000 parameters
     USERNAME = "kpeeroo" #Grid5000 login
-    site = "lyon" #Grid5000 Site See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
-    cluster = "taurus" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
+    site = "nancy" #Grid5000 Site See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
+    cluster = "gros" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
     job_name = "PANDAS_libp2p"
 
     #Node launch script path
@@ -93,7 +94,7 @@ def main(output_dir):
 
     experiment_name = f"PANDAS_libp2p_{nb_builder}b_{nb_validator}v_{nb_regular}r_{PARCEL_SIZE}p_{current_datetime_string}"
 
-    EXPERIMENT_DURATION_SECS = 60
+    EXPERIMENT_DURATION_SECS = 300
     WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 60                                                   # 60 seconds buffer
     
     #Network parameters 
@@ -160,6 +161,7 @@ def main(output_dir):
             #     i += 1
             # else:
             builder, validator, regular = partition[i]
+            print(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> run_sh_output_{current_datetime_string}_{i}.txt 2>&1")
             p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> run_sh_output_{current_datetime_string}_{i}.txt 2>&1")
             i += 1
     
@@ -169,8 +171,11 @@ def main(output_dir):
     console.print("Start: ", start_formatted, style="bold green")
     console.print("Expected End: ", add_time(start, seconds=WALLTIME_SECS).strftime("%H:%M:%S"), style="bold green")
 
-    # for i in track(range(WALLTIME_SECS), description=f"Waiting for walltime ({WALLTIME_SECS} secs)..."):
-    #     time.sleep(1)
+    elapsed_time = time.time() - start_time
+    remaining_time = WALLTIME_SECS - elapsed_time
+
+    for i in track(range(remaining_time), description=f"Waiting for walltime to finish ({remaining_time} secs left)..."):
+        time.sleep(1)
 
     """
     if output_dir != None:
