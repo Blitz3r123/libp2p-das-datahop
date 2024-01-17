@@ -41,6 +41,13 @@ echo "Installing libp2p-das-datahop"
 git clone https://github.com/Blitz3r123/libp2p-das-datahop.git
 cd libp2p-das-datahop
 
+if [ ! -f "go.mod" ]; then
+    echo "go.mod file does not exist - creating one"
+    go get -u
+    go mod tidy
+fi
+
+apt install sysstat -y
 systemctl start sysstat
 sar -A -o sar_logs 1 $exp_duration >/dev/null 2>&1 &
 sleep 1

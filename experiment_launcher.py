@@ -70,7 +70,7 @@ def main(output_dir):
     #Grid5000 parameters
     USERNAME = "kpeeroo" #Grid5000 login
     site = "nancy" #Grid5000 Site See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
-    cluster = "gros" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
+    cluster = "grisou" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
     job_name = "PANDAS_libp2p"
 
     #Node launch script path
@@ -81,7 +81,7 @@ def main(output_dir):
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 3        
+    nb_cluster_machine = 1        
     #Number of nodes running for the experiment 
     nb_experiment_node = 3        
 
@@ -94,8 +94,8 @@ def main(output_dir):
 
     experiment_name = f"PANDAS_libp2p_{nb_builder}b_{nb_validator}v_{nb_regular}r_{PARCEL_SIZE}p_{current_datetime_string}"
 
-    EXPERIMENT_DURATION_SECS = 300
-    WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 60                                                   # 60 seconds buffer
+    EXPERIMENT_DURATION_SECS = 60
+    WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 60                                           # 60 seconds buffer
     
     #Network parameters 
     delay = "10%"
@@ -161,8 +161,8 @@ def main(output_dir):
             #     i += 1
             # else:
             builder, validator, regular = partition[i]
-            print(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> run_sh_output_{current_datetime_string}_{i}.txt 2>&1")
-            p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> run_sh_output_{current_datetime_string}_{i}.txt 2>&1")
+            current_datetime_string_for_filenames = current_datetime.strftime("%Y-%m-%d-%H-%M-%S")
+            p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
             i += 1
     
     start = datetime.datetime.now() #Timestamp grid5000 job start
@@ -172,7 +172,7 @@ def main(output_dir):
     console.print("Expected End: ", add_time(start, seconds=WALLTIME_SECS).strftime("%H:%M:%S"), style="bold green")
 
     elapsed_time = time.time() - start_time
-    remaining_time = WALLTIME_SECS - elapsed_time
+    remaining_time = int(WALLTIME_SECS - elapsed_time)
 
     for i in track(range(remaining_time), description=f"Waiting for walltime to finish ({remaining_time} secs left)..."):
         time.sleep(1)
