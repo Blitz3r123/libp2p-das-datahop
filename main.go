@@ -39,6 +39,7 @@ type Config struct {
 	DiscoveryPeers     addrList
 	Debug              bool
 	ExperimentDuration int
+	LogDirectory       string
 }
 
 type Stats struct {
@@ -88,6 +89,7 @@ func main() {
 	flag.IntVar(&config.Port, "port", 0, "")
 	flag.IntVar(&config.ExperimentDuration, "duration", 30, "Experiment duration (in seconds).")
 	flag.StringVar(&config.IP, "ip", "127.0.0.1", "IP address of this machine.")
+	flag.StringVar(&config.LogDirectory, "log", "./", "Log Directory")
 	flag.Parse()
 
 	const builder_id = "12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73"
@@ -227,7 +229,7 @@ func main() {
 }
 
 func writeTotalStatsToFile(stats *Stats, h host.Host, nodeType string) (string, error) {
-	filename := h.ID().String()[0:10] + "_total_stats_" + nodeType + ".csv"
+	filename := config.LogDirectory + h.ID().String()[0:10] + "_total_stats_" + nodeType + ".csv"
 
 	f, err := os.Create(filename)
 	if err != nil {
@@ -255,7 +257,7 @@ func writeTotalStatsToFile(stats *Stats, h host.Host, nodeType string) (string, 
 }
 
 func writeOperationsToFile(stats *Stats, h host.Host, nodeType string) (string, error) {
-	filename := h.ID().String()[0:10] + "_operations_" + nodeType + ".csv"
+	filename := config.LogDirectory + h.ID().String()[0:10] + "_operations_" + nodeType + ".csv"
 
 	// Convert latencies and hops to rows
 	var operationRows [][]string
@@ -343,7 +345,7 @@ func writeOperationsToFile(stats *Stats, h host.Host, nodeType string) (string, 
 }
 
 func writeLatencyStatsToFile(stats *Stats, h host.Host, nodeType string) (string, error) {
-	filename := h.ID().String()[0:10] + "_latency_stats_" + nodeType + ".csv"
+	filename := config.LogDirectory + h.ID().String()[0:10] + "_latency_stats_" + nodeType + ".csv"
 
 	// Convert latencies and hops to rows
 	var latencyRows [][]string
