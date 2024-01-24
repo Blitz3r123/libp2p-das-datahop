@@ -68,7 +68,7 @@ def main(output_dir):
     start_time = time.time()
     #========== Parameters ==========
     #Grid5000 parameters
-    USERNAME = "kpeeroo" #Grid5000 login
+    USERNAME = "mapigaglio" #Grid5000 login
     site = "nancy" #Grid5000 Site See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
     cluster = "grisou" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
     job_name = "PANDAS_libp2p"
@@ -81,12 +81,12 @@ def main(output_dir):
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 1        
+    nb_cluster_machine = 3        
     #Number of nodes running for the experiment 
-    nb_experiment_node = 3        
+    nb_experiment_node = 20        
 
     nb_builder = 1
-    nb_validator = 1
+    nb_validator = 10
     nb_regular = nb_experiment_node - nb_builder - nb_validator
 
     current_datetime = datetime.datetime.now()
@@ -164,6 +164,7 @@ def main(output_dir):
             current_datetime_string_for_filenames = current_datetime.strftime("%Y-%m-%d-%H-%M-%S")
             p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
             i += 1
+            time.sleep(3)
     
     start = datetime.datetime.now() #Timestamp grid5000 job start
     start_formatted = start.strftime("%H:%M:%S")
