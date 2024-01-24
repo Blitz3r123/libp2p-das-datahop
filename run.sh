@@ -31,8 +31,8 @@ fi
 #Install go
 echo "Installing go"
 cd /tmp
-wget "https://go.dev/dl/go1.20.4.linux-amd64.tar.gz"
-tar -C /usr/local -xzf go1.20.4.linux-amd64.tar.gz
+wget "https://go.dev/dl/go1.21.6.linux-amd64.tar.gz"
+tar -C /usr/local -xzf go1.21.6.linux-amd64.tar.gz
 export PATH=$PATH:/usr/local/go/bin
 
 echo "Installing libp2p-das-datahop"
