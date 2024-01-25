@@ -47,11 +47,11 @@ def seconds_to_hh_mm_ss(seconds):
 #Experiment node partition between Grid5000 machine
 def node_partition(nb_cluster_machine, nb_builder, nb_validator, nb_regular):
     partition = [[0, 0, 0] for i in range(nb_cluster_machine)]
-
-    index = 0
+    partition[0] = [1,0,0]
+    index = 1
     while nb_builder > 0 or nb_validator > 0 or nb_regular > 0:
         if index == len(partition):
-            index  = 0
+            index  = 1
         if nb_builder > 0:
             partition[index][0] += 1
             nb_builder -= 1
@@ -81,11 +81,11 @@ def main(output_dir):
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 3        
+    nb_cluster_machine = 34        
     #Number of nodes running for the experiment 
-    nb_experiment_node = 20        
+    nb_experiment_node = 1000        
 
-    nb_builder = 1
+    nb_builder = 0
     nb_validator = 10
     nb_regular = nb_experiment_node - nb_builder - nb_validator
 
@@ -105,7 +105,6 @@ def main(output_dir):
 
     #========== Experiment nodes partition on cluster machines ==========
     partition = node_partition(nb_cluster_machine, nb_builder, nb_validator, nb_regular)
-
     #========== Create and validate Grid5000 and network emulation configurations ==========
     #Log to Grid5000 and check connection
     en.init_logging(level=logging.INFO)
@@ -146,12 +145,11 @@ def main(output_dir):
 
     #========== Deploy Experiment ==========
     #Send launch script to Grid5000 site frontend
-    ssh_command = f'scp {launch_script} {USERNAME}@access.grid5000.fr:{site}'
-    execute_ssh_command(ssh_command, USERNAME, site)
     i = 0
 
     results = en.run_command("ip -o -4 addr show scope global | awk '!/^[0-9]+: lo:/ {print $4}' | cut -d '/' -f 1", roles=roles["experiment"][0])
     builder_ip = results[0].payload["stdout"]
+    print(builder_ip)
 
     for x in roles["experiment"]:
         with en.actions(roles=x, on_error_continue=True, background=True) as p:
@@ -162,7 +160,7 @@ def main(output_dir):
             # else:
             builder, validator, regular = partition[i]
             current_datetime_string_for_filenames = current_datetime.strftime("%Y-%m-%d-%H-%M-%S")
-            p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
+            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
             i += 1
             time.sleep(3)
     
