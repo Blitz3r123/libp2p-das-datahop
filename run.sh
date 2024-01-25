@@ -19,7 +19,7 @@ echo "Experiment duration: $exp_duration"
 
 result_dir="/home/${login}/results"
 finish_time=$(date +%d-%m-%y-%H-%M)
-result_dir="${result_dir}/${experiment_name}_${finish_time}"
+result_dir="/home/mapigaglio/log"
 
 rm -rf oar*
 rm -rf OAR*
