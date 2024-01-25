@@ -198,7 +198,7 @@ func CopyEnvelopesToIfaces(in []*Envelope) []interface{} {
 	return ifaces
 }
 
-func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, peerType string, parcelSize int, ctx context.Context, exp_duration int) {
+func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, peerType string, parcelSize int, ctx context.Context, exp_duration int, logger *log.Logger) {
 
 	if h == nil {
 		panic("Host is nil")
@@ -251,9 +251,10 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
             return
 
          case <-blockTicker.C:
-            blockID += 1
             pub.HeaderPublish(blockID)
+            logger.Println(formatJSONLogEvent(HeaderSent, blockID))
             go StartSeedingBlock(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht)
+            blockID += 1
             //TODO add a mutex to make currBlock thread-safe
          default:
          }
@@ -269,8 +270,9 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
             return
          case m := <-pub.messages:
             //log.Printf("Got a message %s", msg)
+            logger.Println(formatJSONLogEvent(HeaderReceived, m.BlockID))
             blockID = m.BlockID
-            go StartValidatorSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht)
+            go StartValidatorSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht, logger)
 
          default:
          }
@@ -286,8 +288,9 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
             return
          case m := <-pub.messages:
             //log.Printf("Got a message %s", msg)
+            logger.Println(formatJSONLogEvent(HeaderReceived, m.BlockID))
             blockID = m.BlockID
-            go StartRegularSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht)
+            go StartRegularSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht, logger)
          default:
          }
       }

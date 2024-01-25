@@ -40,6 +40,8 @@ type Config struct {
 	Debug              bool
 	ExperimentDuration int
 	LogDirectory       string
+	PerfMode           bool
+	NickFlag           string
 }
 
 type Stats struct {
@@ -89,8 +91,25 @@ func main() {
 	flag.IntVar(&config.Port, "port", 0, "")
 	flag.IntVar(&config.ExperimentDuration, "duration", 30, "Experiment duration (in seconds).")
 	flag.StringVar(&config.IP, "ip", "127.0.0.1", "IP address of this machine.")
-	flag.StringVar(&config.LogDirectory, "log", "./", "Log Directory")
+	flag.StringVar(&config.LogDirectory, "log", "./log/", "Log Directory")
+	flag.StringVar(&config.NickFlag, "nick", "", "nickname for node")
+	flag.BoolVar(&config.PerfMode, "pref", false, "perf")
 	flag.Parse()
+
+	log.SetPrefix(config.NickFlag + ": ")
+	log.SetFlags(log.Lmicroseconds) //print time in microseconds
+	//ctx := context.Background()
+	log.Printf("Running DHT with the following config:\n")
+	log.Printf("\tNickName: %s\n", config.NickFlag)
+	log.Printf("\tNode Type: %s\n", config.NodeType)
+
+	//========== Initialise Logger ==========
+	//Create the log folder if it doesn't exist
+    err := createDirectoryIfNotExists(config.LogDirectory)
+	if err != nil {
+		fmt.Printf("Error creating directory: %v\n", err)
+		return
+	}
 
 	const builder_id = "12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73"
 	nodeType := strings.ToLower(config.NodeType)
@@ -139,6 +158,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+    // open the file to store the log for this node
+    peerIDString := h.ID().String()
+    log.Printf("PeerID prefix: %s", peerIDString[0:5])
+	file, err := os.OpenFile(config.LogDirectory + nodeType + "_" + peerIDString[0:5]+".log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("Error opening log file:", err)
+	}
+	defer file.Close()
+	// Set up a logger for standard output with JSON format
+	logger := log.New(file, "", 0)
+	logger.SetFlags(0)
+	logger.SetOutput(file)
 
 	//h.Peerstore().AddAddrs(dht.Host().ID(), dht.Host().Addrs(), peerstore.PermanentAddrTTL)
 	//routingDiscovery := discovery.NewRoutingDiscovery(dht)
@@ -204,7 +236,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	service.StartMessaging(h, dht, stats, nodeType, config.ParcelSize, ctx, config.ExperimentDuration)
+	service.StartMessaging(h, dht, stats, nodeType, config.ParcelSize, ctx, config.ExperimentDuration, logger)
 
 	if filename, err := writeOperationsToFile(stats, h, nodeType); err != nil {
 		log.Fatal(err)
@@ -227,6 +259,28 @@ func main() {
 	cancel()
 
 }
+
+func createDirectoryIfNotExists(directoryPath string) error {
+	// Check if the directory already exists
+	_, err := os.Stat(directoryPath)
+	if os.IsNotExist(err) {
+		// Directory does not exist, create it
+		err := os.MkdirAll(directoryPath, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("error creating directory: %v", err)
+		}
+		fmt.Printf("Directory '%s' created successfully.\n", directoryPath)
+	} else if err != nil {
+		// Some other error occurred
+		return fmt.Errorf("error checking directory existence: %v", err)
+	} else {
+		// Directory already exists
+		fmt.Printf("Directory '%s' already exists.\n", directoryPath)
+	}
+
+	return nil
+}
+
 
 func writeTotalStatsToFile(stats *Stats, h host.Host, nodeType string) (string, error) {
 	filename := config.LogDirectory + h.ID().String()[0:10] + "_total_stats_" + nodeType + ".csv"

@@ -12,7 +12,7 @@ import (
    dht "github.com/libp2p/go-libp2p-kad-dht"
 )
 
-func StartRegularSampling(blockID int, blockDimension int, parcelSize int, s *Service, ctx context.Context, stats *Stats, dht *dht.IpfsDHT){
+func StartRegularSampling(blockID int, blockDimension int, parcelSize int, s *Service, ctx context.Context, stats *Stats, dht *dht.IpfsDHT, logger *log.Logger){
 
    startTime := time.Now()
 
@@ -107,7 +107,7 @@ func StartRegularSampling(blockID int, blockDimension int, parcelSize int, s *Se
          }(parcel, blockID)
       }
       parcelWg.Wait()
-
+      logger.Println(formatJSONLogEvent(SamplingFinished, blockID))
       stats.TotalSamplingLatencies = append(stats.TotalSamplingLatencies, time.Since(startTime))
 
       log.Printf("[R - %s] Block %d sampling took %.2f seconds.\n", s.host.ID()[0:5], blockID, time.Since(startTime).Seconds())
