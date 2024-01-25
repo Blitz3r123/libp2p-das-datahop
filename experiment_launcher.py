@@ -81,9 +81,9 @@ def main(output_dir):
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 34        
+    nb_cluster_machine = 10        
     #Number of nodes running for the experiment 
-    nb_experiment_node = 1000        
+    nb_experiment_node = 100        
 
     nb_builder = 0
     nb_validator = 10
@@ -95,7 +95,7 @@ def main(output_dir):
     experiment_name = f"PANDAS_libp2p_{nb_builder}b_{nb_validator}v_{nb_regular}r_{PARCEL_SIZE}p_{current_datetime_string}"
 
     EXPERIMENT_DURATION_SECS = 60
-    WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 60                                           # 60 seconds buffer
+    WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 600  # 60 seconds buffer
     
     #Network parameters 
     delay = "10%"
