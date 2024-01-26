@@ -47,8 +47,7 @@ def seconds_to_hh_mm_ss(seconds):
 #Experiment node partition between Grid5000 machine
 def node_partition(nb_cluster_machine, nb_builder, nb_validator, nb_regular):
     partition = [[0, 0, 0] for i in range(nb_cluster_machine)]
-    partition[0] = [1,0,0]
-    index = 1
+    index = 0
     while nb_builder > 0 or nb_validator > 0 or nb_regular > 0:
         if index == len(partition):
             index  = 1
@@ -70,7 +69,7 @@ def main(output_dir):
     #Grid5000 parameters
     USERNAME = "mapigaglio" #Grid5000 login
     site = "nancy" #Grid5000 Site See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
-    cluster = "grisou" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
+    cluster = "gros" #Gride5000 Cluster name See: https://www.grid5000.fr/w/Status and https://www.grid5000.fr/w/Hardware
     job_name = "PANDAS_libp2p"
 
     #Node launch script path
@@ -81,7 +80,7 @@ def main(output_dir):
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 10        
+    nb_cluster_machine = 5      
     #Number of nodes running for the experiment 
     nb_experiment_node = 100        
 
