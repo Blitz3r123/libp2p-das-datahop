@@ -8,6 +8,7 @@ login=$5
 builder_ip=$6
 parcel_size=$7
 exp_duration=$8
+ip=$9
 echo "Experiment name: $experiment_name"
 echo "Builder count: $builder_count"
 echo "Validator count: $validator_count"
@@ -37,7 +38,7 @@ export PATH=$PATH:/usr/local/go/bin
 
 echo "Installing libp2p-das-datahop"
 #Build and run experiment
-git clone https://github.com/Blitz3r123/libp2p-das-datahop.git
+cp -r /home/mapigaglio/libp2p-das-datahop .
 cd libp2p-das-datahop
 
 if [ ! -f "go.mod" ]; then
@@ -51,9 +52,6 @@ apt install sysstat -y
 systemctl start sysstat
 sar -A -o sar_logs 1 $exp_duration >/dev/null 2>&1 &
 sleep 1
-
-ip=$(hostname -I | awk '{print $1}')
-echo "IP: $ip"
 
 echo "Number of files: $(ls -l | grep -v ^d | wc -l)"
 

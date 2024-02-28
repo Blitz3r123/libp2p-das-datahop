@@ -89,7 +89,7 @@ func main() {
 	flag.Var(&config.DiscoveryPeers, "peer", "Peer multiaddress for peer discovery")
 	flag.StringVar(&config.ProtocolID, "protocolid", "/p2p/rpc", "")
 	flag.IntVar(&config.Port, "port", 0, "")
-	flag.IntVar(&config.ExperimentDuration, "duration", 30, "Experiment duration (in seconds).")
+	flag.IntVar(&config.ExperimentDuration, "duration", 180, "Experiment duration (in seconds).")
 	flag.StringVar(&config.IP, "ip", "127.0.0.1", "IP address of this machine.")
 	flag.StringVar(&config.LogDirectory, "log", "./log/", "Log Directory")
 	flag.StringVar(&config.NickFlag, "nick", "", "nickname for node")
@@ -102,7 +102,7 @@ func main() {
 	log.Printf("Running DHT with the following config:\n")
 	log.Printf("\tNickName: %s\n", config.NickFlag)
 	log.Printf("\tNode Type: %s\n", config.NodeType)
-
+  log.Printf("\tIp: %s\n", config.IP)
 	//========== Initialise Logger ==========
 	//Create the log folder if it doesn't exist
     err := createDirectoryIfNotExists(config.LogDirectory)
@@ -486,7 +486,7 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 	defer wg.Done()
 
 	// ? Wait for a couple of seconds to make sure bootstrap peer is up and running
-	time.Sleep(2 * time.Second)
+	time.Sleep(10 * time.Second)
 
 	// ? Timeout of 10 seconds to connect to bootstrap peer
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

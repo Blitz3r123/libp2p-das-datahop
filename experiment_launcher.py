@@ -50,7 +50,7 @@ def node_partition(nb_cluster_machine, nb_builder, nb_validator, nb_regular):
     index = 0
     while nb_builder > 0 or nb_validator > 0 or nb_regular > 0:
         if index == len(partition):
-            index  = 1
+            index  = 0
         if nb_builder > 0:
             partition[index][0] += 1
             nb_builder -= 1
@@ -80,11 +80,11 @@ def main(output_dir):
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 5      
+    nb_cluster_machine = 2
     #Number of nodes running for the experiment 
-    nb_experiment_node = 100        
+    nb_experiment_node = 20       
 
-    nb_builder = 0
+    nb_builder = 1
     nb_validator = 10
     nb_regular = nb_experiment_node - nb_builder - nb_validator
 
@@ -93,8 +93,8 @@ def main(output_dir):
 
     experiment_name = f"PANDAS_libp2p_{nb_builder}b_{nb_validator}v_{nb_regular}r_{PARCEL_SIZE}p_{current_datetime_string}"
 
-    EXPERIMENT_DURATION_SECS = 60
-    WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 600  # 60 seconds buffer
+    EXPERIMENT_DURATION_SECS = 80
+    WALLTIME_SECS = EXPERIMENT_DURATION_SECS + 300  # 60 seconds buffer
     
     #Network parameters 
     delay = "10%"
@@ -149,7 +149,11 @@ def main(output_dir):
     results = en.run_command("ip -o -4 addr show scope global | awk '!/^[0-9]+: lo:/ {print $4}' | cut -d '/' -f 1", roles=roles["experiment"][0])
     builder_ip = results[0].payload["stdout"]
     print(builder_ip)
-
+    server = roles["experiment"][0]
+    ip_address_obj = server.filter_addresses(networks=networks["experiment_network"])[0]
+    server_private_ip = ip_address_obj.ip.ip
+    builder_ip=server_private_ip
+    print(builder_ip)
     for x in roles["experiment"]:
         with en.actions(roles=x, on_error_continue=True, background=True) as p:
             # if x == roles["experiment"][0]:
@@ -157,12 +161,15 @@ def main(output_dir):
             #     p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} 127.0.0.1 {PARCEL_SIZE}")
             #     i += 1
             # else:
+            ip_address_obj = x.filter_addresses(networks=networks["experiment_network"])[0]
+            server_private_ip = ip_address_obj.ip.ip
+            ip=server_private_ip
             builder, validator, regular = partition[i]
             current_datetime_string_for_filenames = current_datetime.strftime("%Y-%m-%d-%H-%M-%S")
-            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
+            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} {ip}>> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
             i += 1
-            time.sleep(3)
-    
+            time.sleep(1)
+
     start = datetime.datetime.now() #Timestamp grid5000 job start
     start_formatted = start.strftime("%H:%M:%S")
     
