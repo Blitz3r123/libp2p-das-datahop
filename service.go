@@ -8,11 +8,11 @@ import (
 	"sort"
 	"time"
 
-	dht "github.com/libp2p/go-libp2p-kad-dht"
-   "github.com/libp2p/go-libp2p/core/host"
-   "github.com/libp2p/go-libp2p/core/peer"
-   "github.com/libp2p/go-libp2p/core/protocol"
 	rpc "github.com/libp2p/go-libp2p-gorpc"
+	dht "github.com/libp2p/go-libp2p-kad-dht"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/protocol"
 	// dht "./vendor/go-libp2p-kad-dht"
 )
 
@@ -223,78 +223,77 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
 		return
 	}
 
-   expeDurationTicker := time.NewTicker(time.Duration(exp_duration) * time.Second)
-   defer expeDurationTicker.Stop()
-   blockID := 0
+	expeDurationTicker := time.NewTicker(time.Duration(exp_duration) * time.Second)
+	defer expeDurationTicker.Stop()
+	blockID := 0
 
-   pub, err := CreatePubSub(h, ctx)
-   if err != nil {
-      log.Println("Error creating pubSub:", err)
-      return
-   }
+	pub, err := CreatePubSub(h, ctx)
+	if err != nil {
+		log.Println("Error creating pubSub:", err)
+		return
+	}
 
-   if peerType == "builder" {
+	if peerType == "builder" {
 
 		for len(dht.RoutingTable().ListPeers()) == 0 {
 			log.Printf("[B - %s] Waiting for peers to join...\n", s.host.ID()[0:5])
 			time.Sleep(time.Second)
 		}
 
-      // TODO add exp_duration as a parameter
+		// TODO add exp_duration as a parameter
 		blockTicker := time.NewTicker(BLOCK_TIME_SEC * time.Second)
-      defer blockTicker.Stop()
-      for {
-         select {
-         case <-expeDurationTicker.C:
-            log.Println("Experiment time exceeded")
-            //finished <- true
-            return
+		defer blockTicker.Stop()
+		for {
+			select {
+			case <-expeDurationTicker.C:
+				log.Println("Experiment time exceeded")
+				//finished <- true
+				return
 
-         case <-blockTicker.C:
-            pub.HeaderPublish(blockID)
-            logger.Println(formatJSONLogEvent(HeaderSent, blockID))
-            go StartSeedingBlock(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht)
-            blockID += 1
-            //TODO add a mutex to make currBlock thread-safe
-         default:
-         }
-      }
+			case <-blockTicker.C:
+				pub.HeaderPublish(blockID, logger)
+				logger.Println(formatJSONLogEvent(HeaderSent, blockID))
+				go StartSeedingBlock(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht)
+				blockID += 1
+				//TODO add a mutex to make currBlock thread-safe
+			default:
+			}
+		}
 
 	} else if peerType == "validator" {
-      go pub.readLoop()
-      for {
-         select {
-         case <-expeDurationTicker.C:
-            log.Println("Experiment time exceded")
-            //finished <- true
-            return
-         case m := <-pub.messages:
-            //log.Printf("Got a message %s", msg)
-            logger.Println(formatJSONLogEvent(HeaderReceived, m.BlockID))
-            blockID = m.BlockID
-            go StartValidatorSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht, logger)
+		go pub.readLoop()
+		for {
+			select {
+			case <-expeDurationTicker.C:
+				log.Println("Experiment time exceded")
+				//finished <- true
+				return
+			case m := <-pub.messages:
+				//log.Printf("Got a message %s", msg)
+				logger.Println(formatJSONLogEvent(HeaderReceived, m.BlockID))
+				blockID = m.BlockID
+				go StartValidatorSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht, logger)
 
-         default:
-         }
-      }
+			default:
+			}
+		}
 
 	} else if peerType == "nonvalidator" {
-      go pub.readLoop()
-      for {
-         select {
-         case <-expeDurationTicker.C:
-            log.Println("Experiment time exceded")
-            //finished <- true
-            return
-         case m := <-pub.messages:
-            //log.Printf("Got a message %s", msg)
-            logger.Println(formatJSONLogEvent(HeaderReceived, m.BlockID))
-            blockID = m.BlockID
-            go StartRegularSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht, logger)
-         default:
-         }
-      }
-
+		go pub.readLoop()
+		for {
+			select {
+			case <-expeDurationTicker.C:
+				log.Println("Experiment time exceded")
+				//finished <- true
+				return
+			case m := <-pub.messages:
+				//log.Printf("Got a message %s", msg)
+				logger.Println(formatJSONLogEvent(HeaderReceived, m.BlockID))
+				blockID = m.BlockID
+				go StartRegularSampling(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht, logger)
+			default:
+			}
+		}
 
 	} else {
 		panic("Peer type not recognized: " + peerType)

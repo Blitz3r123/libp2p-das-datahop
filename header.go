@@ -58,7 +58,7 @@ func CreatePubSub(h host.Host, ctx context.Context) (*Pub, error) {
 	}, nil
 }
 
-func (p *Pub) HeaderPublish(blockID int) error {
+func (p *Pub) HeaderPublish(blockID int, logger *log.Logger) error {
 
 	m := &HeaderMessage{
 		SenderID: p.host.ID().String(),
@@ -71,6 +71,7 @@ func (p *Pub) HeaderPublish(blockID int) error {
 	}
 
 	log.Printf("\033[31m Block %d Header Publish \033[0m", blockID)
+	logger.Println(formatJSONLogEvent(SamplingFinished, blockID))
 	return p.topic.Publish(p.ctx, msgBytes)
 }
 
