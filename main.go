@@ -486,7 +486,7 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 	defer wg.Done()
 
 	// ? Wait for a couple of seconds to make sure bootstrap peer is up and running
-	time.Sleep(3 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	// ? Timeout of 10 seconds to connect to bootstrap peer
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
