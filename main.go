@@ -486,39 +486,43 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 	defer wg.Done()
 
 	// ? Wait for a couple of seconds to make sure bootstrap peer is up and running
-	time.Sleep(10 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	// ? Timeout of 10 seconds to connect to bootstrap peer
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	// ? Connect to bootstrap peers
-	for _, peerAddr := range discoveryPeers {
-		peerinfo, _ := peer.AddrInfoFromP2pAddr(peerAddr)
 
-		if err := h.Connect(ctx, *peerinfo); err != nil {
+    for {
+	    for _, peerAddr := range discoveryPeers {
+		    peerinfo, _ := peer.AddrInfoFromP2pAddr(peerAddr)
 
-			log.Print()
-			log.Printf("Error connecting to bootstrap node %q: %-v", peerinfo, err)
-			log.Printf("peerinfo: %s\n", peerinfo)
-			log.Printf("peerinfo.ID: %s\n", peerinfo.ID)
-			log.Printf("peerinfo.Addrs: %s\n", peerinfo.Addrs)
-			log.Printf("err: %s\n", err)
-			log.Print()
+		    if err := h.Connect(ctx, *peerinfo); err != nil {
 
-		} else {
+			    log.Print()
+			    log.Printf("Error connecting to bootstrap node %q: %-v", peerinfo, err)
+			    log.Printf("peerinfo: %s\n", peerinfo)
+			    log.Printf("peerinfo.ID: %s\n", peerinfo.ID)
+			    log.Printf("peerinfo.Addrs: %s\n", peerinfo.Addrs)
+			    log.Printf("err: %s\n", err)
+			    log.Print()
 
-			if _, err := dht.FindPeer(ctx, peerinfo.ID); err != nil {
+		    } else {
 
-				log.Printf("Error finding peer: %s\n", err)
+			    if _, err := dht.FindPeer(ctx, peerinfo.ID); err != nil {
 
-			} else {
+				    log.Printf("Error finding peer: %s\n", err)
 
-				return
-			}
+			    } else {
 
-		}
-	}
+				    return
+			    }
+
+		    }
+	        time.Sleep(1 * time.Second)
+	    }
+    }
 
 	log.Printf("Could not connect to any bootstrap nodes...")
 
