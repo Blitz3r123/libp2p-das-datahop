@@ -59,17 +59,17 @@ echo "Number of files: $(ls -l | grep -v ^d | wc -l)"
 for ((i=0; i<$builder_count-1; i++))
 do
     echo "[BACKGROUND] Running builder $i"
-    go run . -seed 1234 -port 61960 -nodeType builder -parcelSize $parcel_size -duration $exp_duration -ip $ip -log $result_dir/ &
+    go run . -seed 1234 -port 61960 -nodeType builder -parcelSize $parcel_size -duration $exp_duration -ip $ip -log $result_dir/ >> /home/$login/log/${ip}_builder_$i.txt 2>&1 &
     sleep 1
 done
 if [ $(($builder_count)) -ne 0 ]; then
     if [ $(($non_validator_count)) -eq 0 ] && [ $(($validator_count)) -eq 0 ]; then
         echo "[FOREGROUND] Running builder [0]"
 
-        go run . -seed 1234 -port 61960 -nodeType builder -parcelSize $parcel_size -duration $exp_duration -ip $ip -log $result_dir/
+        go run . -seed 1234 -port 61960 -nodeType builder -parcelSize $parcel_size -duration $exp_duration -ip $ip -log $result_dir/  >> /home/$login/log/${ip}_builder_$i.txt 2>&1
         sleep 1
     else
-        go run . -seed 1234 -port 61960 -nodeType builder -parcelSize $parcel_size -duration $exp_duration -ip $ip -log $result_dir/ &
+        go run . -seed 1234 -port 61960 -nodeType builder -parcelSize $parcel_size -duration $exp_duration -ip $ip -log $result_dir/  >> /home/$login/log/${ip}_builder_$i.txt 2>&1 &
         sleep 1
     fi;
 fi;
@@ -78,31 +78,31 @@ fi;
 for ((i=0; i<$validator_count - 1; i++))
 do
     echo "[BACKGROUND] Running validator $i"
-    go run . -nodeType validator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/ &
+    go run . -nodeType validator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/  >> /home/$login/log/${ip}_validator_$i.txt 2>&1 &
 done
 
 if [ $(($non_validator_count)) -eq 0 ]
 then
     if [ $(($validator_count)) -ne 0 ]; then
         echo "[FOREGROUND] Running validator $i"
-        go run . -nodeType validator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/
+        go run . -nodeType validator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/   >> /home/$login/log/${ip}_validator_$i.txt 2>&1
         sleep 1
     fi;
 else
     echo "[BACKGROUND] Running validator $i"
-    go run . -nodeType validator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/ &
+    go run . -nodeType validator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/   >> /home/$login/log/${ip}_validator_$i.txt 2>&1 &
 fi
 
 # Run non validators
 for ((i=0; i<$non_validator_count - 1; i++))
 do
     echo "[BACKGROUND] Running non validator $i"
-    go run . -nodeType nonvalidator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/ &
+    go run . -nodeType nonvalidator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/   >> /home/$login/log/${ip}_nonvalidator_$i.txt 2>&1 &
 done
 
 if [ $(($non_validator_count)) -ne 0 ]; then
     echo "[FOREGROUND] Running non validator $i"
-    go run . -nodeType nonvalidator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/
+    go run . -nodeType nonvalidator -parcelSize $parcel_size -duration $exp_duration -ip $ip -peer /ip4/$builder_ip/tcp/61960/p2p/12D3KooWE3AwZFT9zEWDUxhya62hmvEbRxYBWaosn7Kiqw5wsu73  -log $result_dir/   >> /home/$login/log/${ip}_nonvalidator_$i.txt 2>&1
     sleep 1
 fi;
 
