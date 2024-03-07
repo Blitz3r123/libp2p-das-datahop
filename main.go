@@ -485,17 +485,15 @@ func (al *addrList) Set(value string) error {
 func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dht *dht.IpfsDHT) {
 	defer wg.Done()
 
-	// ? Wait for a couple of seconds to make sure bootstrap peer is up and running
+	// Wait for a couple of seconds to make sure bootstrap peer is up and running
 	time.Sleep(5 * time.Second)
+    log.Printf("Sleeping for 5 seconds...")
 
-	// ? Timeout of 10 seconds to connect to bootstrap peer
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// ? Connect to bootstrap peers
+	// Connect to bootstrap peers
 
     for {
 	    for _, peerAddr := range discoveryPeers {
+	        ctx := context.Background()
 		    peerinfo, _ := peer.AddrInfoFromP2pAddr(peerAddr)
 
 		    if err := h.Connect(ctx, *peerinfo); err != nil {
@@ -509,17 +507,15 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 			    log.Print()
 
 		    } else {
-
+			    log.Printf("Successfully connected to bootstrap node %q ", peerinfo)
 			    if _, err := dht.FindPeer(ctx, peerinfo.ID); err != nil {
-
 				    log.Printf("Error finding peer: %s\n", err)
-
 			    } else {
-
-				    return
+				    log.Printf("Bootstrapping is successful")
+                    return;
 			    }
-
 		    }
+            // Sleep for one second and re-try connecting afterwards...
 	        time.Sleep(1 * time.Second)
 	    }
     }
