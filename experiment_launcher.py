@@ -148,25 +148,28 @@ def main(output_dir):
 
     results = en.run_command("ip -o -4 addr show scope global | awk '!/^[0-9]+: lo:/ {print $4}' | cut -d '/' -f 1", roles=roles["experiment"][0])
     builder_ip = results[0].payload["stdout"]
-    print(builder_ip)
-    server = roles["experiment"][0]
-    ip_address_obj = server.filter_addresses(networks=networks["experiment_network"])[0]
-    server_private_ip = ip_address_obj.ip.ip
-    builder_ip=server_private_ip
-    print(builder_ip)
-    for x in roles["experiment"]:
-        with en.actions(roles=x, on_error_continue=True, background=True) as p:
+
+    ip_list = []
+    for i in range(len(roles["experiment"])):
+        server = roles["experiment"][i]
+        ip_address_obj = server.filter_addresses(networks=networks["experiment_network"])[0]
+        server_private_ip = ip_address_obj.ip.ip
+        ip_list.append(server_private_ip)
+    builder_ip = ip_list[0]
+
+    for i in range(len(roles["experiment"])):
+        with en.actions(roles=roles["experiment"][i], on_error_continue=True, background=True) as p:
             # if x == roles["experiment"][0]:
             #     builder, validator, regular = partition[i]
             #     p.shell(f"/home/{USERNAME}/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} 127.0.0.1 {PARCEL_SIZE}")
             #     i += 1
             # else:
-            ip_address_obj = x.filter_addresses(networks=networks["experiment_network"])[0]
+            ip_address_obj = roles["experiment"][i].filter_addresses(networks=networks["experiment_network"])[0]
             server_private_ip = ip_address_obj.ip.ip
             ip=server_private_ip
             builder, validator, regular = partition[i]
             current_datetime_string_for_filenames = current_datetime.strftime("%Y-%m-%d-%H-%M-%S")
-            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} {ip}>> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
+            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} {ip} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
             i += 1
             time.sleep(1)
 
