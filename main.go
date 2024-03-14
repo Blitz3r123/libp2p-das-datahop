@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	randMath "math/rand"
 	"encoding/csv"
 	"flag"
 	"fmt"
@@ -486,8 +487,8 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 	defer wg.Done()
 
 	// Wait for a couple of seconds to make sure bootstrap peer is up and running
-    rand.Seed(time.Now().UnixNano())
-    sleepDuration := time.Duration(rand.Intn(51)) * time.Second
+    randMath.Seed(time.Now().UnixNano())
+    sleepDuration := time.Duration(randMath.Intn(51)) * time.Second
     log.Printf("Sleeping for %d seconds...", sleepDuration)
 
     // Sleep for the random duration
