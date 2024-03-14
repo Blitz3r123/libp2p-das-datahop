@@ -486,11 +486,14 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 	defer wg.Done()
 
 	// Wait for a couple of seconds to make sure bootstrap peer is up and running
-	time.Sleep(5 * time.Second)
-    log.Printf("Sleeping for 5 seconds...")
+    rand.Seed(time.Now().UnixNano())
+    sleepDuration := time.Duration(rand.Intn(51)) * time.Second
+    log.Printf("Sleeping for %d seconds...", sleepDuration)
+
+    // Sleep for the random duration
+    time.Sleep(sleepDuration)
 
 	// Connect to bootstrap peers
-
     for {
 	    for _, peerAddr := range discoveryPeers {
 	        ctx := context.Background()

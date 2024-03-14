@@ -237,8 +237,8 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
 
 		for len(dht.RoutingTable().ListPeers()) == 0 {
 			log.Printf("[B - %s] Waiting for peers to join...\n", s.host.ID()[0:5])
-			time.Sleep(time.Second)
 		}
+		time.Sleep(60*time.Second)
 
 		// TODO add exp_duration as a parameter
 		blockTicker := time.NewTicker(BLOCK_TIME_SEC * time.Second)
@@ -251,8 +251,8 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
 				return
 
 			case <-blockTicker.C:
-				pub.HeaderPublish(blockID, logger)
 				logger.Println(formatJSONLogEvent(HeaderSent, blockID))
+				pub.HeaderPublish(blockID, logger)
 				go StartSeedingBlock(blockID, ROW_COUNT, parcelSize, s, ctx, stats, dht)
 				blockID += 1
 				//TODO add a mutex to make currBlock thread-safe
