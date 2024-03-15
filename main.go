@@ -489,7 +489,7 @@ func waitForBuilder(wg *sync.WaitGroup, discoveryPeers addrList, h host.Host, dh
 	// Wait for a couple of seconds to make sure bootstrap peer is up and running
     randMath.Seed(time.Now().UnixNano())
     sleepDuration := time.Duration(randMath.Intn(51)) * time.Second
-    log.Printf("Sleeping for %d seconds...", sleepDuration)
+    log.Printf("Sleeping for %d seconds...", sleepDuration/time.Second)
 
     // Sleep for the random duration
     time.Sleep(sleepDuration)

@@ -238,7 +238,7 @@ func (s *Service) StartMessaging(h host.Host, dht *dht.IpfsDHT, stats *Stats, pe
 		for len(dht.RoutingTable().ListPeers()) == 0 {
 			log.Printf("[B - %s] Waiting for peers to join...\n", s.host.ID()[0:5])
 		}
-		time.Sleep(60*time.Second)
+		time.Sleep(180*time.Second)
 
 		// TODO add exp_duration as a parameter
 		blockTicker := time.NewTicker(BLOCK_TIME_SEC * time.Second)

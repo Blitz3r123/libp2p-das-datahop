@@ -71,7 +71,7 @@ func (p *Pub) HeaderPublish(blockID int, logger *log.Logger) error {
 	}
 
 	log.Printf("\033[31m Block %d Header Publish \033[0m", blockID)
-	logger.Println(formatJSONLogEvent(SamplingFinished, blockID))
+	// logger.Println(formatJSONLogEvent(SamplingFinished, blockID))
 	return p.topic.Publish(p.ctx, msgBytes)
 }
 
