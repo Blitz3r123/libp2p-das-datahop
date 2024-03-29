@@ -124,23 +124,18 @@ def main(output_dir):
     roles, networks = provider.init()
     roles = en.sync_info(roles, networks)
 
-    # #========== Grid5000 network emulation configuration ==========
-    # #network parameters
-    # netem = en.NetemHTB()
-    # (
-    #     netem.add_constraints(
-    #         src=roles["experiment"],
-    #         dest=roles["experiment"],
-    #         delay=delay,
-    #         rate=rate,
-    #         loss=loss,
-    #         symmetric=symmetric,
-    #     )
-    # )
+    #========== Grid5000 network emulation configuration ==========
+    #network parameters
+    
+    netem = en.Netem()
+    (
+        netem.add_constraints("delay 200ms", roles["experiment"], symmetric=True)
+
+    )
     
     # #Deploy network emulation
-    # netem.deploy()
-    # netem.validate()
+    netem.deploy()
+    netem.validate()
 
     #========== Deploy Experiment ==========
     #Send launch script to Grid5000 site frontend
