@@ -72,18 +72,17 @@ def main(output_dir):
 
     #Node launch script path
     dir_path = os.path.dirname(os.path.realpath(__file__)) #Get current directory path
-    launch_script = dir_path +"/" + "run.sh"
 
     #Experiment parameters
     PARCEL_SIZE = 512
 
     #Number of machine booked on the cluster
-    nb_cluster_machine = 2
+    nb_cluster_machine = 41
     #Number of nodes running for the experiment 
-    nb_experiment_node = 20       
+    nb_experiment_node = 1000       
 
     nb_builder = 1
-    nb_validator = 10
+    nb_validator = 200
     nb_regular = nb_experiment_node - nb_builder - nb_validator
 
     current_datetime = datetime.datetime.now()
@@ -132,8 +131,8 @@ def main(output_dir):
     )
     
     # #Deploy network emulation
-    netem.deploy()
-    netem.validate()
+    #netem.deploy()
+    #netem.validate()
 
     #========== Deploy Experiment ==========
     #Send launch script to Grid5000 site frontend
@@ -162,7 +161,7 @@ def main(output_dir):
             ip=server_private_ip
             builder, validator, regular = partition[i]
             current_datetime_string_for_filenames = current_datetime.strftime("%Y-%m-%d-%H-%M-%S")
-            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {PARCEL_SIZE} {EXPERIMENT_DURATION_SECS} {ip} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
+            p.shell(f"/home/{USERNAME}/libp2p-das-datahop/run.sh {experiment_name} {builder} {validator} {regular} {USERNAME} {builder_ip} {EXPERIMENT_DURATION_SECS} {ip} >> /home/{USERNAME}/run_sh_output_{current_datetime_string_for_filenames}_{i}.txt 2>&1")
             i += 1
             time.sleep(1)
 
