@@ -47,14 +47,12 @@ def seconds_to_hh_mm_ss(seconds):
 #Experiment node partition between Grid5000 machine
 def node_partition(nb_cluster_machine, nb_builder, nb_validator, nb_regular):
     partition = [[0, 0, 0] for i in range(nb_cluster_machine)]
-    index = 0
-    while nb_builder > 0 or nb_validator > 0 or nb_regular > 0:
+    partition[0][0] += 1
+    index = 1
+    while nb_validator > 0 or nb_regular > 0:
         if index == len(partition):
-            index  = 0
-        if nb_builder > 0:
-            partition[index][0] += 1
-            nb_builder -= 1
-        elif nb_validator > 0:
+            index = 1
+        if nb_validator > 0:
             partition[index][1] += 1
             nb_validator -= 1            
         elif nb_regular > 0:

@@ -1,5 +1,5 @@
 non_builder_counts=(1 2 3 4 5)
-parcel_sizes=(512 256)
+parcel_sizes=(512)
 
 total_test_count=$(( ${#non_builder_counts[@]} * ${#parcel_sizes[@]} ))
 current_test_count=0
